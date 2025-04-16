@@ -8,9 +8,11 @@ function App() {
 
   return (
     <>
-      <MainLayout/>
+    <div className="flex min-h-screen h-[80vh]">
+    <MainLayout/>
+    </div>
+      
     </>
   )
 }
-
 export default App;

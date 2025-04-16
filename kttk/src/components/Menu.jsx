@@ -6,8 +6,8 @@ import MenuItem from './MenuItem';
 function Menu() {
   return (
     <aside className="w-64 bg-white p-6 border-r shadow-lg border-gray-200">
-      <div className="flex items-center mb-8">
-        <img src="/img/logo.png" alt="Logo" className="h-6" />
+      <div className="flex items-center ">
+        <img src="/img/logo.png" alt="Logo" className="w-full" />
       </div>
 
       <nav className="flex flex-col space-y-2">

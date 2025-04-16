@@ -46,12 +46,33 @@ function Table() {
     setTimeout(() => setOpenModal(true), 0);
   };
 
-  const handleSave = () => {
-    const updatedCustomers = customers.map((cust) =>
-      cust.id === selectedCustomer.id ? selectedCustomer : cust
-    );
-    setCustomers(updatedCustomers);
-    setOpenModal(false);
+  const handleSave = async () => {
+    try {
+      const response = await fetch(
+        `https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers/${selectedCustomer.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(selectedCustomer),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update customer");
+      }
+
+      const updatedData = await response.json();
+
+      const updatedCustomers = customers.map((cust) =>
+        cust.id === updatedData.id ? updatedData : cust
+      );
+      setCustomers(updatedCustomers);
+      setOpenModal(false);
+    } catch (error) {
+      console.error("Error updating customer:", error);
+    }
   };
 
   return (

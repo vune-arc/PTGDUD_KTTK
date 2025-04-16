@@ -3,6 +3,7 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import EditCustomerModal from "./EditCustomerModal";
 import { useNotification } from "../context/NotificationContext";
+import * as XLSX from "xlsx";
 function Table() {
   const [customers, setCustomers] = useState([]);
   const [page, setPage] = useState(1);
@@ -155,12 +156,12 @@ function Table() {
       alert("Error deleting customer: " + error.message);
     }
   };
-  const handleImportExcel = (event) => {
+  const handleImportExcel = async (event, addNotification) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -172,14 +173,56 @@ function Table() {
         orderValue: parseFloat(row["Order Value"] || 0),
         orderDate: new Date().toISOString().split("T")[0],
         status: row["Status"] || "New",
-        avatar: row["Avatar"] || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
+        avatar:
+          row["Avatar"] ||
+          `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
       }));
 
-      importCustomers(importedCustomers);
+      await importCustomers(importedCustomers, addNotification);
     };
 
     reader.readAsArrayBuffer(file);
   };
+
+  const importCustomers = async (importedList, addNotification) => {
+    let nextId =
+      customers.length > 0
+        ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
+        : 1;
+
+    const newList = importedList.map((customer) => ({
+      ...customer,
+      id: `${nextId++}`,
+    }));
+
+    try {
+      
+      const postPromises = newList.map((customer) => postCustomer(customer));
+      const postedCustomers = await Promise.all(postPromises);
+
+      setCustomers((prev) => [...postedCustomers, ...prev]);
+      setNewCustomerCount((prev) => prev + postedCustomers.length);
+
+  
+      addNotification(
+        `✅ Đã nhập ${postedCustomers.length} khách hàng từ Excel vào lúc (${getFormattedTime()})`
+      );
+    } catch (error) {
+      console.error("Import failed:", error);
+      addNotification(" Lỗi khi import khách hàng từ Excel!");
+    }
+  };
+
+  const postCustomer = async (customer) => {
+    return await fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customer),
+    }).then((res) => res.json());
+  };
+
   return (
     <div>
       <div className="flex justify-between p-2">
@@ -200,15 +243,14 @@ function Table() {
             Add new
           </button>
 
-          <button className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50">
-            <img src="./img/Move up.png" alt="" className="h-[25px] mr-2" />
+          <label className="cursor-pointer border rounded border-pink-400 text-pink-400 px-4 py-2 hover:bg-pink-50">
             Import
-          </button>
-
-          <button className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50">
-            <img src="./img/Download.png" alt="" className="h-[25px] mr-2" />
+            <input type="file" accept=".xlsx, .xls" onChange={handleImportExcel} className="hidden" />
+          </label>
+          <label className="cursor-pointer border rounded border-pink-400 text-pink-400 px-4 py-2 hover:bg-pink-50">
             Export
-          </button>
+            <input type="file" accept=".xlsx, .xls"  className="hidden" />
+          </label>
         </div>
       </div>
 

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
+import EditCustomerModal from "./EditCustomerModal";
 
 function Table() {
   const [customers, setCustomers] = useState([]);
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
     fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers")
@@ -36,6 +39,21 @@ function Table() {
     }
   };
 
+  const handleEditClick = (customer) => {
+    console.log("Opening modal with customer:", customer);
+    setSelectedCustomer(customer);
+
+    setTimeout(() => setOpenModal(true), 0);
+  };
+
+  const handleSave = () => {
+    const updatedCustomers = customers.map((cust) =>
+      cust.id === selectedCustomer.id ? selectedCustomer : cust
+    );
+    setCustomers(updatedCustomers);
+    setOpenModal(false);
+  };
+
   return (
     <div>
       <div className="flex justify-between p-2">
@@ -52,7 +70,7 @@ function Table() {
             <img
               src="./img/create.png"
               alt=""
-              className="h-[25px] mr-2"  // Thêm khoảng cách giữa hình ảnh và chữ
+              className="h-[25px] mr-2"
             />
             Add new
           </button>
@@ -61,7 +79,7 @@ function Table() {
             <img
               src="./img/Move up.png"
               alt=""
-              className="h-[25px] mr-2"  // Thêm khoảng cách giữa hình ảnh và chữ
+              className="h-[25px] mr-2"
             />
             Import
           </button>
@@ -70,13 +88,11 @@ function Table() {
             <img
               src="./img/Download.png"
               alt=""
-              className="h-[25px] mr-2"  // Thêm khoảng cách giữa hình ảnh và chữ
+              className="h-[25px] mr-2"
             />
             Export
           </button>
         </div>
-
-
       </div>
 
       <div className="overflow-x-auto px-6">
@@ -107,8 +123,7 @@ function Table() {
             {paginatedData.map((customer, index) => (
               <tr
                 key={customer.id}
-                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-gray-100 transition-colors duration-200`}
+                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors duration-200`}
               >
                 <td className="py-4 px-6 text-left flex items-center gap-2">
                   <img
@@ -127,16 +142,17 @@ function Table() {
                 </td>
                 <td className="py-4 px-6 text-left">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(
-                      customer.status || ""
-                    )}`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(customer.status || "")}`}
                   >
                     {customer.status}
                   </span>
                 </td>
                 <td className="py-4 px-6 text-left">
-                  <button className="text-blue-500 hover:underline">
-                    <img src="/img/create.png" alt="" />
+                  <button
+                    className="text-blue-500 hover:underline"
+                    onClick={() => handleEditClick(customer)}
+                  >
+                    <img src="/img/create.png" alt="Edit" />
                   </button>
                 </td>
               </tr>
@@ -146,7 +162,7 @@ function Table() {
 
         <div className="flex items-center justify-between mt-4 px-2">
           <div className="text-sm text-gray-500">
-            Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+            Showing <span className="font-medium">{startIndex + 1}</span> to {" "}
             <span className="font-medium">
               {Math.min(page * rowsPerPage, customers.length)}
             </span>{" "}
@@ -164,6 +180,14 @@ function Table() {
           </Stack>
         </div>
       </div>
+
+      <EditCustomerModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        customer={selectedCustomer}
+        setCustomer={setSelectedCustomer}
+        onSave={handleSave}
+      />
     </div>
   );
 }

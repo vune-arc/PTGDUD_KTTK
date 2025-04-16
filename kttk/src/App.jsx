@@ -1,18 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import MainLayout from './components/MainLayout'
-function App() {
-  const [count, setCount] = useState(0)
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from './components/MainLayout';
+import Contents from './components/Contents';
+import Help from './pages/Help';
+import Notifications from './pages/Notifications';
 
+function App() {
   return (
-  
-    <div className="flex min-h-screen h-[80vh]">
-    <MainLayout/>
-    </div>
-      
-    
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Contents />} />
+          <Route path="dashboard" element={<Contents />} />
+          <Route path="help" element={<Help />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
 }
+
 export default App;

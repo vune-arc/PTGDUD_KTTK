@@ -79,7 +79,7 @@ function Table() {
 
       </div>
 
-      <div className="overflow-x-auto px-2">
+      <div className="overflow-x-auto px-6">
         <table className="min-w-full bg-white rounded-lg overflow-hidden border">
           <thead>
             <tr className="bg-gray-100">

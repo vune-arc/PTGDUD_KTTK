@@ -124,7 +124,26 @@ function Table() {
     }
   };
 
+  const handleDeleteClick = async (customer) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${customer.customerName}?`);
+    if (!confirmed) return;
 
+    try {
+      const response = await fetch(
+        `https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers/${customer.id}`,
+        { method: "DELETE" }
+      );
+
+      if (response.ok) {
+        setCustomers(customers.filter((c) => c.id !== customer.id));
+      } else {
+        throw new Error("Failed to delete customer");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Error deleting customer: " + error.message);
+    }
+  };
   return (
     <div>
       <div className="flex justify-between p-2">
@@ -215,12 +234,14 @@ function Table() {
                   </span>
                 </td>
                 <td className="py-4 px-6 text-left">
-                  <button
-                    className="text-blue-500 hover:underline"
-                    onClick={() => handleEditClick(customer)}
-                  >
-                    <img src="/img/create.png" alt="Edit" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleEditClick(customer)}>
+                      <img src="/img/create.png" alt="Edit" />
+                    </button>
+                    <button onClick={() => handleDeleteClick(customer)}>
+                      <img src="/img/delete.jpg" alt="Delete" className="w-6 h-6" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -16,7 +16,10 @@ function EditCustomerModal({ open, onClose, customer, setCustomer, onSave }) {
   return (
     <Modal open={open} onClose={onClose}>
       <Box className="bg-white p-6  rounded shadow-lg w-[600px] mx-auto mt-[12%]">
-        <h2 className="text-xl font-bold mb-4">Edit Customer</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {customer?.id ? "Edit Customer" : "Add Customer"}
+        </h2>
+
 
         {/* Avatar section */}
         <Box className="mb-4 flex items-center gap-4">

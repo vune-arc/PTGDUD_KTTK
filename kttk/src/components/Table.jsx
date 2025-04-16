@@ -9,6 +9,7 @@ function Table() {
   const rowsPerPage = 5;
   const [openModal, setOpenModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [isAddMode, setIsAddMode] = useState(false); // 👈 Add mode flag
 
   useEffect(() => {
     fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers")
@@ -25,7 +26,7 @@ function Table() {
   const paginatedData = customers.slice(startIndex, startIndex + rowsPerPage);
 
   const getStatusStyle = (status) => {
-    switch (status.toLowerCase()) {
+    switch ((status || "").toLowerCase()) {
       case "new":
         return "bg-blue-100 text-blue-700";
       case "in-progress":
@@ -40,40 +41,89 @@ function Table() {
   };
 
   const handleEditClick = (customer) => {
-    console.log("Opening modal with customer:", customer);
     setSelectedCustomer(customer);
-
+    setIsAddMode(false);
     setTimeout(() => setOpenModal(true), 0);
   };
 
+  const handleAddNew = () => {
+    const nextId = customers.length > 0
+        ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
+        : 1;
+    setSelectedCustomer({
+      
+      customerName: "",
+      companyName: "",
+      orderValue: "",
+      orderDate: new Date().toISOString(),
+      status: "New",
+      avatar: "" + Math.floor(Math.random() * 70),
+    });
+    setIsAddMode(true);
+    setOpenModal(true);
+  };
+  useEffect(() => {
+    console.log(customers);
+  }, [customers]);
+
   const handleSave = async () => {
     try {
-      const response = await fetch(
-        `https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers/${selectedCustomer.id}`,
-        {
-          method: "PUT",
+      let response;
+      if (isAddMode) {
+        const nextId = customers.length > 0
+          ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
+          : 1;
+  
+        const newCustomer = {
+          ...selectedCustomer,
+          id: `${nextId}`,
+        };
+  
+        response = await fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(selectedCustomer),
+          body: JSON.stringify(newCustomer),
+        });
+      } else {
+        response = await fetch(
+          `https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers/${selectedCustomer.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(selectedCustomer),
+          }
+        );
+      }
+  
+      if (response.ok) {
+        const updatedCustomer = await response.json();
+        console.log("Customer updated:", updatedCustomer);
+  
+        // Cập nhật danh sách khách hàng
+        if (isAddMode) {
+          setCustomers([updatedCustomer, ...customers]);
+        } else {
+          const updatedCustomers = customers.map((cust) =>
+            cust.id === updatedCustomer.id ? updatedCustomer : cust
+          );
+          setCustomers(updatedCustomers);
         }
-      );
-
-      if (!response.ok) {
+  
+        setOpenModal(false);
+        setIsAddMode(false);
+      } else {
         throw new Error("Failed to update customer");
       }
-
-      const updatedData = await response.json();
-
-      const updatedCustomers = customers.map((cust) =>
-        cust.id === updatedData.id ? updatedData : cust
-      );
-      setCustomers(updatedCustomers);
-      setOpenModal(false);
     } catch (error) {
       console.error("Error updating customer:", error);
+      alert("Error updating customer: " + error.message);
     }
   };
+  
 
   return (
     <div>
@@ -87,30 +137,21 @@ function Table() {
           <h2 className="text-xl font-semibold">Detailed report</h2>
         </div>
         <div className="flex gap-x-6">
-          <button className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50">
-            <img
-              src="./img/create.png"
-              alt=""
-              className="h-[25px] mr-2"
-            />
+          <button
+            className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50"
+            onClick={handleAddNew}
+          >
+            <img src="./img/create.png" alt="" className="h-[25px] mr-2" />
             Add new
           </button>
 
           <button className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50">
-            <img
-              src="./img/Move up.png"
-              alt=""
-              className="h-[25px] mr-2"
-            />
+            <img src="./img/Move up.png" alt="" className="h-[25px] mr-2" />
             Import
           </button>
 
           <button className="flex items-center pl-8 pr-8 py-2 border rounded-lg border-pink-400 text-pink-400 hover:bg-pink-50">
-            <img
-              src="./img/Download.png"
-              alt=""
-              className="h-[25px] mr-2"
-            />
+            <img src="./img/Download.png" alt="" className="h-[25px] mr-2" />
             Export
           </button>
         </div>
@@ -144,7 +185,8 @@ function Table() {
             {paginatedData.map((customer, index) => (
               <tr
                 key={customer.id}
-                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors duration-200`}
+                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  } hover:bg-gray-100 transition-colors duration-200`}
               >
                 <td className="py-4 px-6 text-left flex items-center gap-2">
                   <img
@@ -163,7 +205,9 @@ function Table() {
                 </td>
                 <td className="py-4 px-6 text-left">
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(customer.status || "")}`}
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(
+                      customer.status || ""
+                    )}`}
                   >
                     {customer.status}
                   </span>
@@ -183,7 +227,7 @@ function Table() {
 
         <div className="flex items-center justify-between mt-4 px-2">
           <div className="text-sm text-gray-500">
-            Showing <span className="font-medium">{startIndex + 1}</span> to {" "}
+            Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
             <span className="font-medium">
               {Math.min(page * rowsPerPage, customers.length)}
             </span>{" "}

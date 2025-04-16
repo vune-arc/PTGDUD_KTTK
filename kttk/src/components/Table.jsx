@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import EditCustomerModal from "./EditCustomerModal";
-
+import { useNotification } from "../context/NotificationContext";
 function Table() {
   const [customers, setCustomers] = useState([]);
   const [page, setPage] = useState(1);
@@ -10,7 +10,7 @@ function Table() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [isAddMode, setIsAddMode] = useState(false); // 👈 Add mode flag
-
+  const { addNotification } = useNotification();
   useEffect(() => {
     fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers")
       .then((res) => res.json())
@@ -39,7 +39,9 @@ function Table() {
         return "bg-gray-100 text-gray-700";
     }
   };
-
+  const getFormattedTime = () => {
+    return new Date().toLocaleString(); // VD: 8/4/2025, 15:30:45
+  };
   const handleEditClick = (customer) => {
     setSelectedCustomer(customer);
     setIsAddMode(false);
@@ -106,11 +108,17 @@ function Table() {
         // Cập nhật danh sách khách hàng
         if (isAddMode) {
           setCustomers([updatedCustomer, ...customers]);
+          addNotification(
+            `Đã thêm khách hàng: ${customer.customerName} vào lúc (${getFormattedTime()})`
+          );
         } else {
           const updatedCustomers = customers.map((cust) =>
             cust.id === updatedCustomer.id ? updatedCustomer : cust
           );
           setCustomers(updatedCustomers);
+          addNotification(
+            `Đã cập nhật khách hàng: ${updatedCustomer.customerName} vào lúc (${getFormattedTime()})`
+          );
         }
 
         setOpenModal(false);
@@ -136,6 +144,9 @@ function Table() {
 
       if (response.ok) {
         setCustomers(customers.filter((c) => c.id !== customer.id));
+        addNotification(
+          `Đã xóa khách hàng: ${customer.customerName} vào lúc (${getFormattedTime()})`
+        );
       } else {
         throw new Error("Failed to delete customer");
       }
@@ -143,6 +154,31 @@ function Table() {
       console.error("Delete error:", error);
       alert("Error deleting customer: " + error.message);
     }
+  };
+  const handleImportExcel = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      const importedCustomers = jsonData.map((row, index) => ({
+        customerName: row["Customer Name"] || "Chưa rõ",
+        companyName: row["Company"] || "Không xác định",
+        orderValue: parseFloat(row["Order Value"] || 0),
+        orderDate: new Date().toISOString().split("T")[0],
+        status: row["Status"] || "New",
+        avatar: row["Avatar"] || `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
+      }));
+
+      importCustomers(importedCustomers);
+    };
+
+    reader.readAsArrayBuffer(file);
   };
   return (
     <div>

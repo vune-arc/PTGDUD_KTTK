@@ -48,10 +48,10 @@ function Table() {
 
   const handleAddNew = () => {
     const nextId = customers.length > 0
-        ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
-        : 1;
+      ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
+      : 1;
     setSelectedCustomer({
-      
+
       customerName: "",
       companyName: "",
       orderValue: "",
@@ -73,12 +73,12 @@ function Table() {
         const nextId = customers.length > 0
           ? Math.max(...customers.map((c) => parseInt(c.id))) + 1
           : 1;
-  
+
         const newCustomer = {
           ...selectedCustomer,
           id: `${nextId}`,
         };
-  
+
         response = await fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers", {
           method: "POST",
           headers: {
@@ -98,11 +98,11 @@ function Table() {
           }
         );
       }
-  
+
       if (response.ok) {
         const updatedCustomer = await response.json();
         console.log("Customer updated:", updatedCustomer);
-  
+
         // Cập nhật danh sách khách hàng
         if (isAddMode) {
           setCustomers([updatedCustomer, ...customers]);
@@ -112,7 +112,7 @@ function Table() {
           );
           setCustomers(updatedCustomers);
         }
-  
+
         setOpenModal(false);
         setIsAddMode(false);
       } else {
@@ -123,7 +123,7 @@ function Table() {
       alert("Error updating customer: " + error.message);
     }
   };
-  
+
 
   return (
     <div>
@@ -188,13 +188,15 @@ function Table() {
                 className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"
                   } hover:bg-gray-100 transition-colors duration-200`}
               >
-                <td className="py-4 px-6 text-left flex items-center gap-2">
-                  <img
-                    src={customer.avatar}
-                    alt="avatar"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  {customer.customerName}
+                <td className="py-4 px-6 text-left">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={customer.avatar}
+                      alt="avatar"
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span>{customer.customerName}</span>
+                  </div>
                 </td>
                 <td className="py-4 px-6 text-left">{customer.companyName}</td>
                 <td className="py-4 px-6 text-left">

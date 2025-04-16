@@ -3,7 +3,7 @@ import React from 'react';
 
 function Header  ()  {
   return (
-    <div className={`header flex justify-between bg-white p-4 shadow-md `}>
+    <div className={`header flex justify-between bg-white pl-5 shadow-md `}>
     <h2 className='font-bold text-pink-400 text-3xl'>DashBoard</h2>
     <div className='flex gap-2'>
       <img src="./img/Search.png" className='h-[20px] mr-2 mt-2 absolute' alt="Search" />

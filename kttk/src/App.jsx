@@ -7,12 +7,12 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <>
+  
     <div className="flex min-h-screen h-[80vh]">
     <MainLayout/>
     </div>
       
-    </>
+    
   )
 }
 export default App;

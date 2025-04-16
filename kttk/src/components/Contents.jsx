@@ -8,7 +8,7 @@ function Content () {
     <main className="flex-1 p-6 bg-gray-100">
       
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 gap-5 mb-6">
+      <div className="grid grid-cols-1 gap-5 ">
         <Overview/>
       </div>
 

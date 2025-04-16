@@ -18,9 +18,9 @@ function Overview() {
       .catch((error) => console.error("Error fetching turnover:", error));
   }, []);
 
-  // Gọi API cho Profit
+  
   useEffect(() => {
-    fetch("https://67c83e5f0acf98d070859495.mockapi.io/api/v1/profit") // Giả sử URL của profit
+    fetch("https://67c83e5f0acf98d070859495.mockapi.io/api/v1/profit") 
       .then((res) => res.json())
       .then((data) => {
         setProfit(data.map((item) => item.value));
@@ -29,9 +29,9 @@ function Overview() {
       .catch((error) => console.error("Error fetching profit:", error));
   }, []);
 
-  // Gọi API cho New Customers
+ 
   useEffect(() => {
-    fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/new-customers") // Giả sử URL của new-customers
+    fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/new-customers") 
       .then((res) => res.json())
       .then((data) => {
         setNewCustomer(data.map((item) => item.value));
@@ -43,30 +43,30 @@ function Overview() {
   const cards = [
     {
       title: "Turnover",
-      value: turnover.join(", "), // Hiển thị các giá trị turnover trong mảng
-      change: turnoverChange.join(", "), // Hiển thị các thay đổi turnover trong mảng
+      value: turnover.join(", "),
+      change: turnoverChange.join(", "), 
       bg: "bg-pink-50",
       icon: "/img/Button 1509.png",
     },
     {
       title: "Profit",
-      value: profit.join(", "), // Hiển thị các giá trị profit trong mảng
-      change: profitChange.join(", "), // Hiển thị các thay đổi profit trong mảng
+      value: profit.join(", "), 
+      change: profitChange.join(", "), 
       bg: "bg-blue-50",
       icon: "/img/Button 1529.png",
     },
     {
       title: "New customer",
-      value: newCustomer.join(", "), // Hiển thị các giá trị newCustomer trong mảng
-      change: newCustomerChange.join(", "), // Hiển thị các thay đổi newCustomer trong mảng
+      value: newCustomer.join(", "), 
+      change: newCustomerChange.join(", "), 
       bg: "bg-indigo-50",
       icon: "/img/Button 1530.png",
     },
   ];
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-4 ">
+    <div className="p-1">
+      <div className="flex items-center gap-2 mb-2 ">
         <img
           src="/img/Squares four 1.png"
           alt="Overview Icon"
@@ -74,11 +74,11 @@ function Overview() {
         />
         <h2 className="text-xl font-semibold">Overview</h2>
       </div>
-      <div className="flex flex-wrap gap-6">
+      <div className="flex flex-wrap gap-6 items-center justify-center">
         {cards.map((card, index) => (
           <div
             key={index}
-            className={`p-5 rounded-xl shadow ${card.bg} relative flex flex-col items-start w-fit min-w-[250px] max-w-full`}
+            className={`p-5 rounded-xl shadow ${card.bg} relative flex flex-col items-start w-fit min-w-[300px] max-w-full`}
           >
             <div>
               <div className="text-2xl font-semibold text-gray-600 text-left">

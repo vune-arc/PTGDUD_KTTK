@@ -5,13 +5,18 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Mapping đường dẫn thành tiêu đề
   const pageTitles = {
     '/': 'Dashboard',
     '/dashboard': 'Dashboard',
     '/notifications': 'Notifications',
     '/help': 'Help',
+    '/projects': 'Projects',
+    '/teams': 'Teams',
+    '/analytics': 'Analytics',
+    '/messages': 'Messages',
+    '/integrations': 'Integrations',
   };
+  
 
   const currentTitle = pageTitles[location.pathname] || 'Page';
 

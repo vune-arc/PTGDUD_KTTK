@@ -11,7 +11,6 @@ function MainLayout() {
                 <div className="flex-1">
                     <Header />
                     <Outlet /> {/* nơi các page sẽ được render */}
-
                 </div>
             </div>
         </div>

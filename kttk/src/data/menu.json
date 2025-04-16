@@ -1,35 +1,41 @@
 {
     "menu": [
-        {
-            "id": "1",
-            "menuName": "Dashboard",
-            "src": "./img/Squares four 1.png"
-        },
-        {
-            "id": "2",
-            "menuName": "Projects",
-            "src":"./img/Folder.png"
-        },
-        {
-            "id": "3",
-            "menuName": "Teams",
-            "src":"./img/Groups.png"
-            
-        },
-        {
-            "menuName": "Analytics", 
-            "id": "4",
-            "src":"./img/Pie chart.png"
-        },
-        {
-            "menuName": "Messages",
-            "id": "5",
-            "src":"./img/Chat.png"
-        },
-        {
-            "menuName": "Integrations",
-            "id": "6",
-            "src":"./img/Code.png"
-        }
+      {
+        "id": "1",
+        "menuName": "Dashboard",
+        "src": "./img/Squares four 1.png",
+        "to": "/dashboard"
+      },
+      {
+        "id": "2",
+        "menuName": "Projects",
+        "src": "./img/Folder.png",
+        "to": "/projects"
+      },
+      {
+        "id": "3",
+        "menuName": "Teams",
+        "src": "./img/Groups.png",
+        "to": "/teams"
+      },
+      {
+        "id": "4",
+        "menuName": "Analytics",
+        "src": "./img/Pie chart.png",
+        "to": "/analytics"
+      },
+      {
+        "id": "5",
+        "menuName": "Messages",
+        "src": "./img/Chat.png",
+        "to": "/messages"
+      },
+      {
+        "id": "6",
+        "menuName": "Integrations",
+        "src": "./img/Code.png",
+        "to": "/integrations"
+      }
     ]
-}
+  }
+  

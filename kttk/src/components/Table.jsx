@@ -10,8 +10,10 @@ function Table() {
   const rowsPerPage = 5;
   const [openModal, setOpenModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isAddMode, setIsAddMode] = useState(false); // 👈 Add mode flag
+  const [isAddMode, setIsAddMode] = useState(false); 
   const { addNotification } = useNotification();
+  const [filterStatus, setFilterStatus] = useState("all");
+const [sortOrder, setSortOrder] = useState("default");
   useEffect(() => {
     fetch("https://67f3c671cbef97f40d2c08a5.mockapi.io/api/v1/customers")
       .then((res) => res.json())
@@ -22,9 +24,6 @@ function Table() {
   const handleChangePage = (event, value) => {
     setPage(value);
   };
-
-  const startIndex = (page - 1) * rowsPerPage;
-  const paginatedData = customers.slice(startIndex, startIndex + rowsPerPage);
 
   const getStatusStyle = (status) => {
     switch ((status || "").toLowerCase()) {
@@ -205,7 +204,7 @@ function Table() {
 
   
       addNotification(
-        `✅ Đã nhập ${postedCustomers.length} khách hàng từ Excel vào lúc (${getFormattedTime()})`
+        ` Đã nhập ${postedCustomers.length} khách hàng từ Excel vào lúc (${getFormattedTime()})`
       );
     } catch (error) {
       console.error("Import failed:", error);
@@ -222,7 +221,39 @@ function Table() {
       body: JSON.stringify(customer),
     }).then((res) => res.json());
   };
+  const handleExportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      customers.map((c) => ({
+        "Customer Name": c.customerName,
+        "Company": c.companyName,
+        "Order Value": c.orderValue,
+        "Order Date": c.orderDate,
+        "Status": c.status,
+        "Avatar": c.avatar,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
+    XLSX.writeFile(workbook, "customer_list.xlsx");
+  };
+  const filteredAndSorted =
+  (filterStatus === "all" && sortOrder === "default")
+    ? [...customers] // Hiển thị danh sách gốc khi không lọc, không sắp xếp
+    : [...customers]
+        .filter(
+          (c) =>
+            filterStatus === "all" ||
+            c.status?.toLowerCase() === filterStatus.toLowerCase()
+        )
+        .sort((a, b) => {
+          if (sortOrder === "default") return 0;
+          return sortOrder === "asc"
+            ? parseFloat(a.orderValue) - parseFloat(b.orderValue)
+            : parseFloat(b.orderValue) - parseFloat(a.orderValue);
+        });
 
+  const startIndex = (page - 1) * rowsPerPage;
+  const paginatedData = filteredAndSorted.slice(startIndex, startIndex + rowsPerPage);
   return (
     <div>
       <div className="flex justify-between p-2">
@@ -249,8 +280,32 @@ function Table() {
           </label>
           <label className="cursor-pointer border rounded border-pink-400 text-pink-400 px-4 py-2 hover:bg-pink-50">
             Export
-            <input type="file" accept=".xlsx, .xls"  className="hidden" />
+            <input type="file" accept=".xlsx, .xls" onChange={handleExportExcel} className="hidden" />
           </label>
+          <select
+            className="border rounded px-2 py-1 text-sm border-pink-400 text-pink-400"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="default">Default</option>
+            <option value="asc">Sort Order ↑</option>
+            <option value="desc">Sort Order ↓</option>
+          </select>
+
+          <select
+            className="border rounded px-2 py-1 text-sm border-pink-400 text-pink-400"
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setPage(1); // reset về trang đầu khi lọc
+            }}
+          >
+            <option value="all">All Statuses</option>
+            <option value="new">New</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+          </select>
         </div>
       </div>
 
